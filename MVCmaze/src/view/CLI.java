@@ -70,27 +70,36 @@ public class CLI {
 					printMenu();
 					try {
 						String commandLine = in.readLine();
+						//-----Parsing the input----
+						
+						//First word is the command
 						String arr[] = commandLine.split(" ");
 						String command = arr[0];			
 						
+						if (command.equals("exit"))
+							break;
+
+						//Checking the validity of the command 
 						if(!commands.containsKey(command)) {
 							out.println("Command doesn't exist");
 						}
+						
+						//Taking out the arguments
 						else {
 							String[] args = null;
-							//check if there are arguments
+							
+							//Check if there are arguments
 							if (arr.length > 1) {
 								String commandArgs = commandLine.substring(
 										commandLine.indexOf(" ") + 1);
 								args = commandArgs.split(" ");							
 							}	
-							//now args is a String array of all the arguments 
+							//Now args is a String array of all the arguments 
+							//Activating the right command 
 							
 							Command cmd = commands.get(command);
 							cmd.doCommand(args);				
 							
-							if (command.equals("exit"))
-								break;
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
