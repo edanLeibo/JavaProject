@@ -76,8 +76,6 @@ public class CLI {
 						String arr[] = commandLine.split(" ");
 						String command = arr[0];			
 						
-						if (command.equals("exit"))
-							break;
 
 						//Checking the validity of the command 
 						if(!commands.containsKey(command)) {
@@ -100,6 +98,8 @@ public class CLI {
 							Command cmd = commands.get(command);
 							cmd.doCommand(args);				
 							
+							if (command.equals("exit"))
+								break;
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
