@@ -12,10 +12,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import presenter.Presenter;
 import algorithms.demo.MazeAdapter;
 import algorithms.mazeGenerators.GrowingTreeGenerator;
 import algorithms.mazeGenerators.LastInSelector;
@@ -52,14 +54,13 @@ public class MyModel extends Observable implements Model {
 		//loadSolutions();
 	}
 	
-	private class GenerateMazeRunnable implements Runnable {
-		//TODO: allow generating simple maze? allow to choose random/last?
+	private class GenerateMazeCallable implements Callable<Maze3d> {
 		
 		private int floors, rows, cols;
 		private String name;
 		private Maze3dGenerator generator;
 		
-		public GenerateMazeRunnable(String name,int floors,int rows, int cols,String type) {
+		private GenerateMazeCallable(String name,int floors,int rows, int cols,String type) {
 			this.floors = floors;
 			this.rows = rows;
 			this.cols = cols;
@@ -84,85 +85,90 @@ public class MyModel extends Observable implements Model {
 				
 			}
 		}
-		
 		@Override
-		public void run() {
+		public Maze3d call() throws Exception {
 			Maze3d maze = generator.generate(floors, rows, cols);
 			mazes.put(name, maze);
-			controller.notifyMazeIsReady(name);			
+			
+			//When the maze is ready notify the presenter about it 
+			setChanged();
+			notifyObservers("maze_ready " + name);		
+			return maze;
 		}
 	}
-
+	
+	private class SolveMazeCallable implements Callable<Solution<Position>>{
+		String name; 
+		Searcher <Position> myAlgorithm;
+		
+		public SolveMazeCallable(String name, String algorithm) {
+			this.name=name;
+			switch (algorithm){
+			case "BFS":
+				myAlgorithm = new BFS <Position>();					
+				break;
+				
+			case "DFS":
+				myAlgorithm = new DFS <Position>();
+				break;
+			}
+		}
+		
+		@Override
+		public Solution<Position> call() throws Exception {
+			Maze3d myMaze = mazes.get(name);
+			Solution<Position> sol=myAlgorithm.search(new MazeAdapter(myMaze));
+			solutions.put(name, sol);
+			setChanged();
+			notifyObservers("solution_ready "+name);
+			return sol;
+		}
+	}
+	
 	@Override
 	public void generateMaze(String name,int floors, int rows, int cols, String type) {
 		if (mazes.containsKey(name)){
-			controller.notifyError("Name already exists choose different one");
+			setChanged();
+			notifyObservers("display_msg The maze "+name+ " already exists choose different one");
 			return;
 		}
 		if (!type.equals("growingLast")&& !type.equals("growingRandom") && !type.equals("simple")){
-			controller.notifyError("The generating algorithm "+type+ " doesn't exist");
+			setChanged();
+			notifyObservers("display_msg The generating algorithm "+type+ " doesn't exist");
 			return;
 		}
-		GenerateMazeRunnable generateMaze = new GenerateMazeRunnable(name,floors,rows, cols, type);
-		//generateMazeTasks.add(generateMaze);
-		Thread thread = new Thread(generateMaze);
-		thread.start();
-		threads.add(thread);		
-	}
-
-	@Override
-	public Maze3d getMaze(String name) {
-		return mazes.get(name);
+		GenerateMazeCallable generateMaze = new GenerateMazeCallable(name,floors,rows, cols, type);
+		executor.submit(generateMaze);
 	}
 	
 	public void solveMaze(String name, String algorithm) {
-		//First check if the maze is in the system
+		//First check if the maze is not in the system
 		if (!mazes.containsKey(name)){
-			controller.notifyError("Maze doesn't exist");
+			setChanged();
+			notifyObservers("display_msg "+name +" Maze doesn't exist in the system");
 			return;
 		}
 		
 		//Second if we have a solution already return the solution immediately 
 		if (solutions.containsKey(name)){
-			controller.notifyError("Solution was already created for this maze, can't create another one.");
+			setChanged();
+			notifyObservers("solution_ready " +name);			
 			return;
 		}
-		final String myName=name;
-		final String algo=algorithm;
-		Thread myThread = new Thread (new Runnable() {
-
-			@Override
-			public void run() {		
-				Maze3d myMaze = mazes.get(myName);
-				Searcher <Position> myAlgorithm;
-
-				switch (algo){
-					case "BFS":
-						myAlgorithm = new BFS <Position>();					
-						break;
-
-					case "DFS":
-						myAlgorithm = new DFS <Position>();
-						break;
-
-					default:
-						controller.notifyError("Algorithm doesn't exist");
-						return;
-					}
-					Solution<Position> sol=myAlgorithm.search(new MazeAdapter(myMaze));
-					solutions.put(myName, sol);
-					controller.notifySolutionIsReady(myName);
-			}
-		});
-		myThread.start();	
-		threads.add(myThread);
+		
+		if (!(algorithm.equals("BFS") || algorithm.equals("DFS"))){
+			setChanged();
+			notifyObservers("display_msg "+algorithm +" can't be recognized as an algorithm");
+			return;
+		}
+		
+		executor.submit(new SolveMazeCallable(name, algorithm));
 
 	}
 		
-	public void exit() {
-		for (Thread t : threads) {
-			t.interrupt();
-		}
+	@Override
+	public Maze3d getMaze(String name) {
+		return mazes.get(name);
 	}
 	
 	// The array will be empty if the directory is empty. Returns null if this abstract pathname does not denote a directory, or if an I/O error occurs.
@@ -293,4 +299,7 @@ public class MyModel extends Observable implements Model {
 		return solutions.get(name);
 	}
 	
+	public void exit() {
+		executor.shutdownNow();
+	}
 }

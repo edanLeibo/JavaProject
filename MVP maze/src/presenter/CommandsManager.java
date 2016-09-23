@@ -251,7 +251,6 @@ public class CommandsManager {
 		
 	}
 	
-	
 	/**
 	* <h1>SolveCommand</h1>
 	* This class is a command that solves the maze
