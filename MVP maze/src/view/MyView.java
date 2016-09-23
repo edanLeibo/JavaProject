@@ -2,13 +2,11 @@ package view;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.text.Position;
-
 import algorithms.mazeGenerators.Maze3d;
+import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
 /**
 * <h1>MyView </h1>
@@ -50,16 +48,7 @@ public class MyView extends Observable implements View, Observer {
 		}
         out.flush();
 	}
-
-	@Override
-	public void setCommands(HashMap<String, Command> commands) {
-		cli.setCommands(commands);
-	}
-	
-	public void setController(Controller controller) {
-		this.controller = controller;
-	}
-	
+		
 	@Override
 	public void notifyMazeIsReady(String name) {
 		out.println("maze " + name + " is ready");
@@ -126,11 +115,11 @@ public class MyView extends Observable implements View, Observer {
 	}
 
 	@Override
-	public void displaySolution(String name, Solution<Position> sol) {
-		if (sol==null) return;
-		out.println("Solution for maze "+ name+ ": ");
-		out.println(sol);
-		out.flush();
+	public void displaySolution(String name, Solution<Position> sol){
+	if (sol==null) return;
+	out.println("Solution for maze "+ name+ ": ");
+	out.println(sol);
+	out.flush();
 	}
 	
 	@Override
@@ -143,4 +132,9 @@ public class MyView extends Observable implements View, Observer {
 		}
 	}
 
+	@Override
+	public void displayMessage(String msg) {
+		out.println(msg);
+		out.flush();		
+	}
 }

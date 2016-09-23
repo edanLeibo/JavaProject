@@ -5,6 +5,7 @@ import java.util.HashMap;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
+
 /**
 * <h1>View interface</h1>
 * This interface represents a general view
@@ -49,7 +50,6 @@ public interface View {
 	 * @return Nothing
 	 */
 	void displayBadArguments();
-
 	/**
 	 * this method uses to display a plain in the maze
 	 * 
