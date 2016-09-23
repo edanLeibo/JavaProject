@@ -38,8 +38,7 @@ public class CommandsManager {
 	 *this method is a getter for the command map
 
 	 * @return a hash map with all the commands and their names
-	 */	
-	
+	 */		
 	public HashMap<String, Command> getCommandsMap() {
 		HashMap<String, Command> commands = new HashMap<String, Command>();
 		commands.put("dir", new DisplayDirCommand());
@@ -50,6 +49,8 @@ public class CommandsManager {
 		commands.put("load_maze", new LoadMazeCommand());
 		commands.put("solve", new SolveCommand());
 		commands.put("display_solution", new DisplaySolutionCommand());
+		commands.put("maze_ready", new MazeReadyCommand());
+		commands.put("solution_ready", new SolutionReadyCommand());
 		commands.put("exit", new ExitCommand());
 		
 		return commands;
@@ -59,7 +60,7 @@ public class CommandsManager {
 	* <h1>SolveCommand</h1>
 	* This class is a command that solves the maze
 	*/
-	public class SolveCommand implements Command{
+	class SolveCommand implements Command{
 		@Override
 		public void doCommand(String[] args){
 			if (args==null || args.length!=2){
@@ -69,11 +70,12 @@ public class CommandsManager {
 			model.solveMaze(args[0], args[1]);
 		}		
 	}
+	
 	/**
 	* <h1>SaveMazeCommand</h1>
 	* This class is a command that saves a maze into a file
 	*/
-	public class SaveMazeCommand implements Command{
+	class SaveMazeCommand implements Command{
 		@Override
 		public void doCommand(String[] args){
 			if (args==null || args.length!=2){
@@ -84,11 +86,12 @@ public class CommandsManager {
 			view.notifyMazeSaved(args[0]);
 		}		
 	}
+	
 	/**
 	* <h1>LoadMazeCommand</h1>
 	* This class is a command that loads a maze from a file
 	*/
-	public class LoadMazeCommand implements Command{
+	class LoadMazeCommand implements Command{
 		@Override
 		public void doCommand(String[] args){
 			if (args==null || args.length!=2){
@@ -100,11 +103,12 @@ public class CommandsManager {
 			}
 		}		
 	}
+	
 	/**
 	* <h1>DisplayCrossSectionCommand</h1>
 	* This class is a command that creates a plain made out of a maze by a specific axis
 	*/
-	public class DisplayCrossSectionCommand implements Command{
+	class DisplayCrossSectionCommand implements Command{
 		@Override
 		public void doCommand(String[] args){
 			if (args==null || args.length!=3){
@@ -120,11 +124,12 @@ public class CommandsManager {
 			}
 		}		
 	}
+	
 	/**
 	* <h1>DisplayDirCommand</h1>
 	* This class is a command that produces all the files and directories in a path
 	*/
-	public class DisplayDirCommand implements Command {
+	class DisplayDirCommand implements Command {
 		@Override
 		public void doCommand(String[] args){
 			if (args==null|| args.length!=1){
@@ -135,11 +140,12 @@ public class CommandsManager {
 			view.displayFilesInPath(args[0], files);
 		}		
 	}
+	
 	/**
 	* <h1>GenerateMazeCommand</h1>
 	* This class is a command that generates a maze by a specific algorithm and dimensions
 	*/
-	public class GenerateMazeCommand implements Command {
+	class GenerateMazeCommand implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
@@ -160,11 +166,12 @@ public class CommandsManager {
 			}
 		}		
 	}
+	
 	/**
 	* <h1>DisplayMazeCommand</h1>
 	* This class is a command that produces the requested maze
 	*/
-	public class DisplayMazeCommand implements Command {
+	class DisplayMazeCommand implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
@@ -178,11 +185,12 @@ public class CommandsManager {
 		}
 		
 	}
+	
 	/**
 	* <h1>DisplaySolutionCommand</h1>
 	* This class is a command that produces a previously calculated solution 
 	*/
-	public class DisplaySolutionCommand implements Command {
+	class DisplaySolutionCommand implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
@@ -196,11 +204,42 @@ public class CommandsManager {
 		}
 		
 	}
+	
+	/**
+	* <h1>MazeReadyCommand</h1>
+	* This class is a command that lets the presenter know that the 
+	* requested maze was generated
+	*/
+	class MazeReadyCommand implements Command {
+
+		@Override
+		public void doCommand(String[] args) {
+			String name = args[0];
+			view.notifyMazeIsReady(name);
+		}
+		
+	}
+	
+	/**
+	* <h1>SolutionReadyCommand</h1>
+	* This class is a command that lets the presenter know that the 
+	* requested solution is ready
+	*/
+	class SolutionReadyCommand implements Command {
+
+		@Override
+		public void doCommand(String[] args) {
+			String name = args[0];
+			view.notifySolutionIsReady(name);
+		}
+		
+	}
+	
 	/**
 	* <h1>SolveCommand</h1>
 	* This class is a command that solves the maze
 	*/
-	public class ExitCommand implements Command{
+	class ExitCommand implements Command{
 		@Override
 		public void doCommand(String[] args){
 			model.exit();
