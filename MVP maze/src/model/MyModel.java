@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Observable;
@@ -16,8 +18,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
-import presenter.Presenter;
 import algorithms.demo.MazeAdapter;
 import algorithms.mazeGenerators.GrowingTreeGenerator;
 import algorithms.mazeGenerators.LastInSelector;
@@ -51,7 +54,7 @@ public class MyModel extends Observable implements Model {
 	public MyModel() {
 		//properties = PropertiesLoader.getInstance().getProperties();
 		executor = Executors.newFixedThreadPool(3);//properties.getNumOfThreads());
-		//loadSolutions();
+		loadSolutions();
 	}
 	
 	private class GenerateMazeCallable implements Callable<Maze3d> {
@@ -309,7 +312,59 @@ public class MyModel extends Observable implements Model {
 		return solutions.get(name);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void loadSolutions() {
+		//When creating MyModel we first try to load historic solutions
+		//If there isn't a file of solution don't do anything
+		File file = new File("history.dat");
+		if (!file.exists())
+			return;
+		
+		//File exists now we read the history on it
+		ObjectInputStream ois = null;
+		
+		try {
+			ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream("history.dat")));
+			mazes = (Map<String, Maze3d>)ois.readObject();
+			solutions = (Map<String, Solution<Position>>)ois.readObject();		
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally{
+			try {
+				ois.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	private void saveSolutions() {
+		//before shutting down MyModel we write our maps into a the history file 
+		ObjectOutputStream oos = null;
+		try {
+		    oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream("history.dat")));
+			oos.writeObject(mazes);
+			oos.writeObject(solutions);			
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				oos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void exit() {
 		executor.shutdownNow();
+		saveSolutions();
 	}
 }
