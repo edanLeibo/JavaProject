@@ -21,6 +21,8 @@ import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import properties.Properties;
+import properties.PropertiesLoader;
 import algorithms.demo.MazeAdapter;
 import algorithms.mazeGenerators.GrowingTreeGenerator;
 import algorithms.mazeGenerators.LastInSelector;
@@ -51,9 +53,12 @@ public class MyModel extends Observable implements Model {
 	//The Model keeps all the calculated solutions
 	private Map<String, Solution<Position>> solutions = new ConcurrentHashMap<String, Solution<Position>>();
 	
+	//The Model loads its properties from a file and inserts it into this data member
+	private Properties properties;
+	
 	public MyModel() {
-		//properties = PropertiesLoader.getInstance().getProperties();
-		executor = Executors.newFixedThreadPool(3);//properties.getNumOfThreads());
+		properties = PropertiesLoader.getInstance().getProperties();
+		executor = Executors.newFixedThreadPool(properties.getNumOfThreads());
 		loadSolutions();
 	}
 	
@@ -316,7 +321,7 @@ public class MyModel extends Observable implements Model {
 	private void loadSolutions() {
 		//When creating MyModel we first try to load historic solutions
 		//If there isn't a file of solution don't do anything
-		File file = new File("history.dat");
+		File file = new File("utilities/history.dat");
 		if (!file.exists())
 			return;
 		
@@ -324,7 +329,7 @@ public class MyModel extends Observable implements Model {
 		ObjectInputStream ois = null;
 		
 		try {
-			ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream("history.dat")));
+			ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream("utilities/history.dat")));
 			mazes = (Map<String, Maze3d>)ois.readObject();
 			solutions = (Map<String, Solution<Position>>)ois.readObject();		
 		} catch (FileNotFoundException e) {
@@ -346,7 +351,7 @@ public class MyModel extends Observable implements Model {
 		//before shutting down MyModel we write our maps into a the history file 
 		ObjectOutputStream oos = null;
 		try {
-		    oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream("history.dat")));
+		    oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream("utilities/history.dat")));
 			oos.writeObject(mazes);
 			oos.writeObject(solutions);			
 			
