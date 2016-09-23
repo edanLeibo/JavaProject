@@ -5,8 +5,6 @@ import java.util.HashMap;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
-import controller.Command;
-import controller.Controller;
 /**
 * <h1>View interface</h1>
 * This interface represents a general view
@@ -51,20 +49,7 @@ public interface View {
 	 * @return Nothing
 	 */
 	void displayBadArguments();
-	/**
-	 * this method uses to insert the data of a command name and an action
-	 * 
-     * @param commands - a hash map containing pairs of command name and concrete command
-	 * @return Nothing
-	 */
-	void setCommands(HashMap<String, Command> commands);
-	/**
-	 * this method uses to set a controller
-	 * 
-     * @param controller - a controller
-	 * @return Nothing
-	 */
-	void setController(Controller controller);
+
 	/**
 	 * this method uses to display a plain in the maze
 	 * 
@@ -111,5 +96,13 @@ public interface View {
 	 * @return Nothing
 	 */
 	void displaySolution(String name, Solution<Position> sol);
+	/**
+	 * this method uses to display a message that came from the presenter
+	 * 
+     * @param name - the massage to display
+	 * @return Nothing
+	 */
+	void displayMessage(String msg);	
+
 }
 

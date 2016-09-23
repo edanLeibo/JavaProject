@@ -207,7 +207,8 @@ public class MyModel extends Observable implements Model {
 		
 		//check if there is a maze under that name
 		if (maze==null){
-			controller.notifyError("No maze exists under that name");
+			setChanged();
+			notifyObservers("display_msg No maze exists under that name");
 			return;
 		}
 		
@@ -219,14 +220,16 @@ public class MyModel extends Observable implements Model {
 			out.write(arr);
 		}
 		catch(IOException e){
-			controller.notifyError("File Error");
+			setChanged();
+			notifyObservers("display_msg File Error");
 		}	
 		finally{
 			try {
 				out.flush();
 				out.close();
 			} catch (IOException e) {
-				controller.notifyError("File Error- can't close file");
+				setChanged();
+				notifyObservers("display_msg File Error- can't close file");
 			}
 			
 		}
@@ -237,7 +240,8 @@ public class MyModel extends Observable implements Model {
 
 		//check if there is a maze under that name
 		if (mazes.containsKey(name)){
-			controller.notifyError("The name "+name+ " already exists in the system, please choose a different name");
+			setChanged();
+			notifyObservers("display_msg The name "+name+ " already exists in the system, please choose a different name");
 			return false;
 		}
 		InputStream in=null;
@@ -245,7 +249,8 @@ public class MyModel extends Observable implements Model {
 			in = new MyDecompressorInputStream(
 				new FileInputStream(filename));
 		}catch (FileNotFoundException e){
-			controller.notifyError("File Error- can't find the file "+filename);
+			setChanged();
+			notifyObservers("display_msg File Error- can't find the file "+filename);
 			return false;
 		}	
 			int size = 0;
@@ -257,14 +262,16 @@ public class MyModel extends Observable implements Model {
 					factor=factor*255;
 				}
 			} catch (IOException e) {
-				controller.notifyError("File Error- can't read file "+filename);
+				setChanged();
+				notifyObservers("display_msg File Error- can't read file "+filename);
 				return false;
 			}
 			finally{
 				try {
 					in.close();
 				} catch (IOException e) {
-					controller.notifyError("File Error- can't close the file "+filename);
+					setChanged();
+					notifyObservers("display_msg File Error- can't close the file "+filename);
 					return false;
 				}
 			}
@@ -275,14 +282,16 @@ public class MyModel extends Observable implements Model {
 				in.read(b);
 				
 			} catch (IOException e) {
-				controller.notifyError("File Error- can't read the file "+filename);
+				setChanged();
+				notifyObservers("display_msg File Error- can't read the file "+filename);
 				return false;
 			}
 			finally{
 				try {
 					in.close();
 				} catch (IOException e) {
-					controller.notifyError("File Error- can't close the file "+filename);
+					setChanged();
+					notifyObservers("display_msg File Error- can't close the file "+filename);
 					return false;
 				}
 			}
@@ -293,7 +302,8 @@ public class MyModel extends Observable implements Model {
 	@Override
 	public Solution<Position> getSolution(String name) {
 		if (!solutions.containsKey(name)){
-			controller.notifyError("There isn't a solution for maze "+name);
+			setChanged();
+			notifyObservers("display_msg There isn't a solution for maze "+name);
 			return null;
 		}
 		return solutions.get(name);

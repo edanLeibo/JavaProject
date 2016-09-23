@@ -51,8 +51,8 @@ public class CommandsManager {
 		commands.put("solve", new SolveCommand());
 		commands.put("maze_ready", new MazeReadyCommand());
 		commands.put("solution_ready", new SolutionReadyCommand());
-		commands.put("exit", new ExitCommand());
 		commands.put("display_msg", new DisplayMessage());
+		commands.put("exit", new ExitCommand());
 
 		return commands;
 	}
@@ -61,13 +61,13 @@ public class CommandsManager {
 
 		@Override
 		public void doCommand(String[] args) {
-			StringBuilder sd = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 
 			for (String s : args) {
-				sd.append(s + " ");
+				sb.append(s + " ");
 			}
 
-			view.displayMessage(sd.toString());
+			view.displayMessage(sb.toString());
 
 		}
 	}

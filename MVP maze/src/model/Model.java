@@ -3,7 +3,6 @@ package model;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
-import controller.Controller;
 /**
 * <h1>Model interface</h1>
 * This interface represents a general model
@@ -51,15 +50,7 @@ public interface Model {
      * @param controller - the controller
 	 * @return Nothing
 	 */
-	void setController(Controller controller);
-	/**
-	 * this method produces the requested plain from a specific maze
-	 * 
-     * @param index - the line
-     * @param axis - the axis in which the maze will be cut by
-     * @param name - the name of the maze
-	 * @return the requested plain
-	 */
+
 	int[][] getCrossSection(int index, String axis, String name);
 	/**
 	 * this method saves the maze
