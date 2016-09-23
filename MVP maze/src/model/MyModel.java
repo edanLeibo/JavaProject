@@ -10,14 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
-
-
-
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import algorithms.demo.MazeAdapter;
 import algorithms.mazeGenerators.GrowingTreeGenerator;
@@ -25,13 +22,11 @@ import algorithms.mazeGenerators.LastInSelector;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Maze3dGenerator;
 import algorithms.mazeGenerators.Position;
-import algorithms.mazeGenerators.RandomSelector;
 import algorithms.mazeGenerators.SimpleMaze3dGenerator;
 import algorithms.search.BFS;
 import algorithms.search.DFS;
 import algorithms.search.Searcher;
 import algorithms.search.Solution;
-import controller.Controller;
 /**
 * <h1>MyModel </h1>
 * This class implements Model interface.
@@ -40,11 +35,10 @@ import controller.Controller;
 * @version 1.0
 * @since   2014-09-14
 */
-public class MyModel implements Model {
-	private Controller controller;	
+public class MyModel extends Observable implements Model {
 	
 	//The Model knows that threads are running
-	private List<Thread> threads = new ArrayList<Thread>();
+	private ExecutorService executor;
 	
 	//The Model keeps all the generated mazes
 	private Map<String, Maze3d> mazes = new ConcurrentHashMap<String, Maze3d>();
@@ -52,7 +46,11 @@ public class MyModel implements Model {
 	//The Model keeps all the calculated solutions
 	private Map<String, Solution<Position>> solutions = new ConcurrentHashMap<String, Solution<Position>>();
 	
-//	private List<GenerateMazeRunnable> generateMazeTasks = new ArrayList<GenerateMazeRunnable>();
+	public MyModel() {
+		//properties = PropertiesLoader.getInstance().getProperties();
+		executor = Executors.newFixedThreadPool(3);//properties.getNumOfThreads());
+		//loadSolutions();
+	}
 	
 	private class GenerateMazeRunnable implements Runnable {
 		//TODO: allow generating simple maze? allow to choose random/last?
@@ -95,10 +93,6 @@ public class MyModel implements Model {
 		}
 	}
 
-	public void setController(Controller controller) {
-		this.controller = controller;
-	}
-	
 	@Override
 	public void generateMaze(String name,int floors, int rows, int cols, String type) {
 		if (mazes.containsKey(name)){
