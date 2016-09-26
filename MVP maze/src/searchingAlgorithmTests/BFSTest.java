@@ -43,7 +43,7 @@ public class BFSTest {
 		maze = generator.generate(5, 6, 7);
 		adapter = new MazeAdapter(maze);
 		amountOfMazes = 1000;
-		amountOfBigMazes = 10;
+		amountOfBigMazes = 5;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class BFSTest {
 		BFS<Position> bfs = new BFS<Position>();
 		for (int i = 0; i < amountOfBigMazes; i++) {
 			Maze3dGenerator generator = new GrowingTreeGenerator(new LastInSelector());
-			maze = generator.generate(20, 20, 20);
+			maze = generator.generate(13,13,13);
 			adapter = new MazeAdapter(maze);
 			Solution<Position> solution = bfs.search(adapter);
 			List<State<Position>> states = solution.getStates();
