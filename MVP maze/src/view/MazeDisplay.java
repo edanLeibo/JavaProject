@@ -6,16 +6,17 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Shell;
 
+import algorithms.mazeGenerators.Maze3d;
+
 public class MazeDisplay extends Canvas {
 	
-	private int[][] mazeData;
-	private int beginRow;
-	private int beginCol;
+	private int[][] mazeData;				//The floor we currently working on 
 	private int endRow;
 	private int endCol;
-	
-	
-	
+	private int endFloor;
+	private GameCharacter gameCharacter;
+	Maze3d maze;							//The maze we currently working on 
+
 	
 	public MazeDisplay(Shell parent, int style) {
 		super(parent, style);
@@ -45,14 +46,14 @@ public class MazeDisplay extends Canvas {
 							e.gc.fillRectangle(x,y,w,h);
 					}
 				
-				//Drawing beginning and ending point
-				e.gc.setForeground(new Color(null,255,0,0));
-				e.gc.setBackground(new Color(null,255,0,0));
-				e.gc.fillOval(beginRow, beginCol, w/2, h/2);
-				
-				e.gc.setForeground(new Color(null,0,255,0));
-				e.gc.setBackground(new Color(null,0,255,0));
-				e.gc.fillOval(endRow, endCol, w/2, h/2);
+				//Drawing the ending point of the character is in right floor
+				if (gameCharacter.getFloor()==endFloor){
+					e.gc.setForeground(new Color(null,0,255,0));
+					e.gc.setBackground(new Color(null,0,255,0));
+					e.gc.fillOval(endRow, endCol, w/2, h/2);
+				}
+				//Drawing the gameCharacter
+				gameCharacter.paint(e, w, h);
 			}
 		});
 	}
@@ -61,24 +62,21 @@ public class MazeDisplay extends Canvas {
 		//When given a new maze 'look' it updates its inner data
 		//and immediately draws it on the board
 		this.mazeData = mazeData;
-		this.redraw();
 	}
 
 	/**
-	 * @param beginRow the beginRow to set
+	 * @param gameCharacter the gameCharacter to set
 	 */
-	public void setBeginRow(int beginRow) {
-		this.beginRow = beginRow;
-		this.redraw();
+	public void setGameCharacter(GameCharacter gameCharacter) {
+		this.gameCharacter = gameCharacter;
 	}
-
+	
 	/**
-	 * @param beginCol the beginCol to set
+	 * @param endFloor the endFloor to set
 	 */
-	public void setBeginCol(int beginCol) {
-		this.beginCol = beginCol;
-		this.redraw();
-	}
+	public void setEndFloor(int endFloor) {
+		this.endFloor = endFloor;
+	}	
 
 	/**
 	 * @param endRow the endRow to set
@@ -95,5 +93,22 @@ public class MazeDisplay extends Canvas {
 		this.endCol = endCol;
 		this.redraw();
 	}
+
+	public int getCharacterFloor() {
+		return gameCharacter.getFloor();
+	}
+
+	/**
+	 * @param maze the maze to set
+	 */
+	public void setMaze(Maze3d maze) {
+		this.maze = maze;
+	}
+
+//	public void setStartingPoint(int z, int y, int x) {
+//		gameCharacter.setFloor(z);	
+//		gameCharacter.setRow(y);
+//		gameCharacter.setCol(x);
+//	}
 	
 }

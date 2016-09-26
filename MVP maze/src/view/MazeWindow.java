@@ -140,9 +140,13 @@ public class MazeWindow extends BasicWindow implements View {
 
 	@Override
 	public void displayMaze(Maze3d maze) {
-		
-		int[][] mazeData=maze.getCrossSectionByZ(1);
-		mazeDisplay.setMazeData(mazeData);
+		//This entire function will only be called only after the first generating
+		mazeDisplay.setMaze(maze);
+		mazeDisplay.setEndRow(maze.getGoalPosition().y);
+		mazeDisplay.setEndCol(maze.getGoalPosition().x);
+		mazeDisplay.setGameCharacter(new GameCharacter(maze.getStartPosition().z, maze.getStartPosition().y,maze.getStartPosition().x));
+		mazeDisplay.setMazeData(maze.getCrossSectionByZ(maze.getStartPosition().z));
+		mazeDisplay.redraw();
 	}
 
 	@Override
