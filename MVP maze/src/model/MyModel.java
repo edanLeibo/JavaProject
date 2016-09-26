@@ -165,9 +165,9 @@ public class MyModel extends Observable implements Model {
 		}
 		
 		if (!(algorithm.equals("BFS") || algorithm.equals("DFS"))){
-			setChanged();
-			notifyObservers("display_msg "+algorithm +" can't be recognized as an algorithm");
-			return;
+			//if you ask for an algorithm which I can't recognize,
+			//I'll load from proprties file 
+			algorithm=properties.getSolveMazeAlgorithm();
 		}
 		
 		executor.submit(new SolveMazeCallable(name, algorithm));

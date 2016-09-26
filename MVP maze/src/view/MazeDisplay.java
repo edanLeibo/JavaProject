@@ -31,7 +31,10 @@ public class MazeDisplay extends Canvas {
 			public void paintControl(PaintEvent e) {
 				if (mazeData == null)
 					return;
-				
+				////
+				System.out.println("curr " +gameCharacter.getFloor());
+				System.out.println("dest " +endFloor);
+				////
 				e.gc.setForeground(new Color(null,0,0,0));
 				e.gc.setBackground(new Color(null,0,0,0));
 				
@@ -51,9 +54,9 @@ public class MazeDisplay extends Canvas {
 				
 				//Drawing the ending point of the character is in right floor
 				if (gameCharacter.getFloor()==endFloor){
-					e.gc.setForeground(new Color(null,0,255,0));
-					e.gc.setBackground(new Color(null,0,255,0));
-					e.gc.fillOval(endRow, endCol, w/2, h/2);
+					e.gc.setForeground(new Color(null,0,120,111));
+					e.gc.setBackground(new Color(null,0,214,111));
+					e.gc.fillOval(endCol*w,endRow*h, w, h);
 				}
 				//Drawing the gameCharacter
 				gameCharacter.paint(e, w, h);
@@ -85,13 +88,17 @@ public class MazeDisplay extends Canvas {
 						gameCharacter.setRow(gameCharacter.getRow()+1);
 					}
 					break;
-				case SWT.PAGE_DOWN:
-					System.out.println("123");
-
-					break;
 				case SWT.PAGE_UP:
-					System.out.println("1233");
-
+					if (maze.getMaze3d()[gameCharacter.getFloor()+1][gameCharacter.getRow()][gameCharacter.getCol()]==0){
+						gameCharacter.setFloor(gameCharacter.getFloor()+1);
+						mazeData=maze.getCrossSectionByZ(gameCharacter.getFloor());
+					}
+					break;
+				case SWT.PAGE_DOWN:
+					if (maze.getMaze3d()[gameCharacter.getFloor()-1][gameCharacter.getRow()][gameCharacter.getCol()]==0){
+						gameCharacter.setFloor(gameCharacter.getFloor()-1);
+						mazeData=maze.getCrossSectionByZ(gameCharacter.getFloor());
+					}
 					break;
 				default:
 					break;
@@ -152,10 +159,5 @@ public class MazeDisplay extends Canvas {
 		this.maze = maze;
 	}
 
-//	public void setStartingPoint(int z, int y, int x) {
-//		gameCharacter.setFloor(z);	
-//		gameCharacter.setRow(y);
-//		gameCharacter.setCol(x);
-//	}
-	
+
 }

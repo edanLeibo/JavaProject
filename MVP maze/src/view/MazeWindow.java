@@ -51,6 +51,18 @@ public class MazeWindow extends BasicWindow implements View {
 		Button btnSolveMaze = new Button(btnGroup, SWT.PUSH);
 		btnSolveMaze.setText("Solve maze");
 		
+		btnSolveMaze.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {				
+			}
+		});
+		
 		mazeDisplay= new MazeDisplay(shell, SWT.BORDER);
 		mazeDisplay.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -142,6 +154,7 @@ public class MazeWindow extends BasicWindow implements View {
 	public void displayMaze(Maze3d maze) {
 		//This entire function will only be called only after the first generating
 		mazeDisplay.setMaze(maze);
+		mazeDisplay.setEndFloor(maze.getGoalPosition().z);		
 		mazeDisplay.setEndRow(maze.getGoalPosition().y);
 		mazeDisplay.setEndCol(maze.getGoalPosition().x);
 		mazeDisplay.setGameCharacter(new GameCharacter(maze.getStartPosition().z, maze.getStartPosition().y,maze.getStartPosition().x));
