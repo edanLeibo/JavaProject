@@ -1,5 +1,8 @@
 package view;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -55,6 +58,50 @@ public class MazeDisplay extends Canvas {
 				//Drawing the gameCharacter
 				gameCharacter.paint(e, w, h);
 			}
+		});
+		this.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				switch (e.keyCode) {
+				case SWT.ARROW_UP:
+						if (mazeData[gameCharacter.getRow()-1][gameCharacter.getCol()]==0){
+							gameCharacter.setRow(gameCharacter.getRow()-1);
+						}
+					break;
+				case SWT.ARROW_LEFT:
+					if (mazeData[gameCharacter.getRow()][gameCharacter.getCol()-1]==0){
+						gameCharacter.setCol(gameCharacter.getCol()-1);
+					}						
+					break;
+				case SWT.ARROW_RIGHT:
+					if (mazeData[gameCharacter.getRow()][gameCharacter.getCol()+1]==0){
+						gameCharacter.setCol(gameCharacter.getCol()+1);
+					}
+
+					break;
+				case SWT.ARROW_DOWN:
+					if (mazeData[gameCharacter.getRow()+1][gameCharacter.getCol()]==0){
+						gameCharacter.setRow(gameCharacter.getRow()+1);
+					}
+					break;
+				case SWT.PAGE_DOWN:
+					System.out.println("123");
+
+					break;
+				case SWT.PAGE_UP:
+					System.out.println("1233");
+
+					break;
+				default:
+					break;
+				}
+				redraw();
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {				
+			}
+			
 		});
 	}
 	

@@ -23,7 +23,7 @@ public class GameCharacter {
 	
 	public void paint(PaintEvent e, int w, int h){
 		e.gc.setForeground(new Color(null, 100,100,100));
-		e.gc.drawOval(w*row, h*col, w, h);
+		e.gc.drawOval(w*col, h*row, w, h);
 	}
 
 	/**
