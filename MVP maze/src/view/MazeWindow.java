@@ -1,5 +1,7 @@
 package view;
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -23,39 +25,67 @@ import algorithms.search.Solution;
 public class MazeWindow extends BasicWindow implements View {
 
 	private MazeDisplay mazeDisplay;
+	private Button btnSolveMaze;
+	private Button btnHintMaze;
+	protected boolean hint=false;
 	
 	@Override
 	protected void initWidgets() {
 		shell.setLayout(new GridLayout(2, false));				
 		
 		Composite btnGroup = new Composite(shell, SWT.BORDER);
-		btnGroup.setLayout(new RowLayout(SWT.VERTICAL));
-		
+		RowLayout myLayout=new RowLayout(SWT.VERTICAL);
+		myLayout.fill=true;
+		btnGroup.setLayout(myLayout);
+	
 		Button btnGenerateMaze = new Button(btnGroup, SWT.PUSH);
 		btnGenerateMaze.setText("Generate maze");	
 		
 		btnGenerateMaze.addSelectionListener(new SelectionListener() {
 			
 			@Override
-			public void widgetSelected(SelectionEvent arg0) {
+			public void widgetSelected(SelectionEvent e) {
+				shell.setEnabled(false);
 				showGenerateMazeOptions();
 			}
 			
 			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
+			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
 		});
 		
-		Button btnSolveMaze = new Button(btnGroup, SWT.PUSH);
+		btnSolveMaze = new Button(btnGroup, SWT.PUSH);
 		btnSolveMaze.setText("Solve maze");
-		
+		btnSolveMaze.setEnabled(false);
 		btnSolveMaze.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
+				setChanged();
+				notifyObservers("solve "+mazeDisplay.getMazeName()+ " fromProperties");						
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {				
+			}
+		});
+			
+		btnHintMaze = new Button(btnGroup, SWT.PUSH);
+		btnHintMaze.setText("Hint");
+		btnHintMaze.setEnabled(false);
+		
+		btnHintMaze.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				setChanged();
+				notifyObservers("solve "+mazeDisplay.getMazeName()+ " fromProperties");
+				hint=true;
+						
 			}
 			
 			@Override
@@ -118,9 +148,9 @@ public class MazeWindow extends BasicWindow implements View {
 			public void widgetSelected(SelectionEvent arg0) {
 
 				setChanged();
-				notifyObservers("generate_maze "+txtName.getText()+" "+floorSpinner.getSelection()+ " " + rowsSpinner.getSelection()+ " " + colsSpinner.getSelection()+" "+listAlgo.getSelection()[0]);
-						
+				notifyObservers("generate_maze "+txtName.getText()+" "+floorSpinner.getSelection()+ " " + rowsSpinner.getSelection()+ " " + colsSpinner.getSelection()+" "+listAlgo.getSelection()[0]);			
 				myShell.close();
+				shell.setEnabled(true);
 			}
 			
 			@Override
@@ -144,6 +174,8 @@ public class MazeWindow extends BasicWindow implements View {
 				msg.setMessage("Maze " + myName + " is ready");
 				msg.open();	
 				
+				mazeDisplay.setName(myName);
+				
 				setChanged();
 				notifyObservers("display " + myName);
 			}
@@ -160,6 +192,9 @@ public class MazeWindow extends BasicWindow implements View {
 		mazeDisplay.setGameCharacter(new GameCharacter(maze.getStartPosition().z, maze.getStartPosition().y,maze.getStartPosition().x));
 		mazeDisplay.setMazeData(maze.getCrossSectionByZ(maze.getStartPosition().z));
 		mazeDisplay.redraw();
+		
+		btnSolveMaze.setEnabled(true);
+		btnHintMaze.setEnabled(true);
 	}
 
 	@Override
@@ -213,16 +248,48 @@ public class MazeWindow extends BasicWindow implements View {
 
 	@Override
 	public void notifySolutionIsReady(String name) {
-		//TODO: run the solution on maze
-		MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION);
-	    messageBox.setMessage("Solution is ready!");
-	    messageBox.open();
+		
+		final String myName= new String(name);
+		display.syncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				setChanged();
+				notifyObservers("display_solution " + myName);
+			}
+		});	
+
 	}
 
 	@Override
 	public void displaySolution(String name, Solution<Position> sol) {
-		// TODO Auto-generated method stub
-		
+		final ArrayList<Position> m=getPath(sol.toString());
+		//check if the user only wanted a hint
+		if (hint){
+			mazeDisplay.showHint(m);
+			mazeDisplay.redraw();
+			hint=false;
+		}
+		//else the user wanted a solution
+		else{
+			mazeDisplay.playWalk(m);
+			btnHintMaze.setEnabled(false);
+		}
+	}
+	
+	private ArrayList<Position> getPath(String path) {
+		ArrayList<Position> ans= new ArrayList<Position>();
+		String[] strSol=(path.toString()).split(" ");
+		for(int i=0;i<strSol.length;i++){
+			strSol[i]=strSol[i].substring(1, strSol[i].length()-1);
+			String[] cell=strSol[i].split(",");
+			int z= Integer.parseInt(cell[0]);
+			int y= Integer.parseInt(cell[1]);
+			int x= Integer.parseInt(cell[2]);
+			Position p=new Position(z,y,x);
+			ans.add(p);
+		}
+		return ans;
 	}
 
 }
